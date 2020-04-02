@@ -43,6 +43,32 @@ LED Blink app modeled after the Arduino example app. Looking for a simple app to
 
 One part is to see how good it does at limiting the size of the final binary based on the code since I do not see any config ways to exclude components. Results: I was hoping for better. Blinky is 136375 bytes; Hello World is 196467 bytes. That is a 60k difference which can only be because the code does less, but it suggest a pretty big minimum size.
 
+Blinky Size:
+```
+Total sizes:
+ DRAM .data size:     972 bytes
+ DRAM .bss  size:    4536 bytes
+Used static DRAM:    5508 bytes (  92796 available, 5.6% used)
+Used static IRAM:   22675 bytes (  26477 available, 46.1% used)
+      Flash code:   96852 bytes
+    Flash rodata:   15876 bytes
+Total image size:~ 136375 bytes (.bin may be padded larger)
+```
+
+With an empty `main()` the image size is:
+```
+Total sizes:
+ DRAM .data size:     972 bytes
+ DRAM .bss  size:    4536 bytes
+Used static DRAM:    5508 bytes (  92796 available, 5.6% used)
+Used static IRAM:   22675 bytes (  26477 available, 46.1% used)
+      Flash code:   95132 bytes
+    Flash rodata:   15336 bytes
+Total image size:~ 134115 bytes (.bin may be padded larger)
+```
+
+Which indicates the bootloader overhead (code plus memory reservations) is 134115. Which, OK, as long as you are planning to use a fair number of the tools available in the RTOS, that's a number you can live with, I guess (seems like a raw Blinky should be less than 100 bytes). I suppose I could make a [Custom Bootloader](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/bootloader.html#customer-bootloader) were I truly concerned about it.
+
 
 
 
