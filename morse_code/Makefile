@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := blinky
+PROJECT_NAME := morse_code
 
 include $(IDF_PATH)/make/project.mk
 
