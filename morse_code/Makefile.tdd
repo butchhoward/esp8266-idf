@@ -1,0 +1,28 @@
+#
+# This is a project Makefile. It is assumed the directory this Makefile resides in is a
+# project subdirectory.
+#
+
+PROJECT_NAME := morse_code
+
+PROJECT_PATH := $(abspath $(dir $(firstword $(MAKEFILE_LIST))))
+BUILD_DIR_BASE := $(PROJECT_PATH)/build-test
+
+.PHONY: all
+all: $(BUILD_DIR_BASE)/include/sdkconfig.h
+	cd $(BUILD_DIR_BASE) && cmake -DTDD=true .. && $(MAKE) tdd
+
+$(BUILD_DIR_BASE)/include/sdkconfig.h:
+	+$(MAKE) BUILD_DIR_BASE="$(BUILD_DIR_BASE)" defconfig
+
+.PHONY: defconfig
+makeconfig: $(BUILD_DIR_BASE)/include/sdkconfig.h
+
+.PHONY: menuconfig
+menuconfig:
+	+$(MAKE) BUILD_DIR_BASE="$(BUILD_DIR_BASE)" menuconfig
+
+.PHONY: clean
+clean:
+	rm -rf $(BUILD_DIR_BASE)
+
