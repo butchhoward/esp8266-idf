@@ -10,13 +10,14 @@ BUILD_DIR_BASE := $(PROJECT_PATH)/build-test
 
 .PHONY: all
 all: $(BUILD_DIR_BASE)/include/sdkconfig.h
-	cd $(BUILD_DIR_BASE) && cmake -DTDD=true .. && $(MAKE) tdd
+	@cmake -DTDD=true -S . -B $(BUILD_DIR_BASE)
+	@cmake --build $(BUILD_DIR_BASE) --target tdd
 
 $(BUILD_DIR_BASE)/include/sdkconfig.h:
 	+$(MAKE) BUILD_DIR_BASE="$(BUILD_DIR_BASE)" defconfig
 
 .PHONY: defconfig
-makeconfig: $(BUILD_DIR_BASE)/include/sdkconfig.h
+defconfig: $(BUILD_DIR_BASE)/include/sdkconfig.h
 
 .PHONY: menuconfig
 menuconfig:
