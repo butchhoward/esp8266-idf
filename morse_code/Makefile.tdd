@@ -5,19 +5,30 @@
 
 PROJECT_NAME := morse_code
 
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
+
 PROJECT_PATH := $(abspath $(dir $(firstword $(MAKEFILE_LIST))))
 BUILD_DIR_BASE := $(PROJECT_PATH)/build-test
 
 .PHONY: all
 all: $(BUILD_DIR_BASE)/include/sdkconfig.h
-	@cmake -DTDD=true -S . -B $(BUILD_DIR_BASE)
+	@$(MAKE) -f $(THIS_FILE) do_cmake
+	@$(MAKE) -f $(THIS_FILE) tdd
+
+.PHONY: tdd
+tdd: 
 	@cmake --build $(BUILD_DIR_BASE) --target tdd
 
-$(BUILD_DIR_BASE)/include/sdkconfig.h:
-	+$(MAKE) BUILD_DIR_BASE="$(BUILD_DIR_BASE)" defconfig
+ $(BUILD_DIR_BASE)/include/sdkconfig.h:
+	@$(MAKE) -f $(THIS_FILE) defconfig
+
+.PHONY: do_cmake
+do_cmake:
+	@cmake -DTDD=true -S . -B $(BUILD_DIR_BASE)
 
 .PHONY: defconfig
-defconfig: $(BUILD_DIR_BASE)/include/sdkconfig.h
+defconfig: 
+	+$(MAKE) BUILD_DIR_BASE="$(BUILD_DIR_BASE)" defconfig
 
 .PHONY: menuconfig
 menuconfig:
@@ -26,4 +37,3 @@ menuconfig:
 .PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR_BASE)
-

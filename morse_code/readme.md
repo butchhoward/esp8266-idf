@@ -47,15 +47,28 @@ Cribbed much from Clay Dowlings [`holidaylights`](https://gitlab.com/ClayDowling
 * Added just enough mocks (actually mostly cribbed from Clay) to support testing for the modules that exist. (I will not entertain any bickering about mocks vs. fakes vs stubs; they are all test doubles of one kind or another.)
 * The root `CMakeLists.txt` is changed to have conditonals around the TDD verses flash build.
 
-* Still working on getting a good build target to put in the root make. For now these steps seem to get it built and run:
-```shell
-rm -rf build-test/
-make BUILD_DIR_BASE="$(PWD)/build-test" defconfig
-cd build-test 
-cmake -DTDD=true .. 
-make tdd
-```
-I have it making the test build in the folder `build-test/`. It is still using the manual commands and only CMake for now.
+* Create `Makefile.tdd` to be able to use `make` for both the flash and the TDD. `make` seems to be the preferred tool for the RTOS_SDK, even though it uses some of the IDF tools underneath. I'm still looking into whether using `idf.py` does the right thing for the flash builds and, if so, how to get it to do the TDD builds.
 
-The TDD build is currently only CMake. It might end up staying that way. It is not yet clear to me whether the RTOS_SDK supports the full `idf.py` style building. The Makefile in the root does appear to invoke the `CMakeLists.txt`files and itself is running some of the `esp-idf` tools, so maybe it just runs `idf.py`.
+## `Makefile.tdd`
+
+```shell
+make -f Makefile.tdd
+```
+
+Provides these targets using the `build-test` folder as the output location:
+* all
+    * Generates the default config
+* CMakes the `build-test`
+    * Builds and Runs the tests
+* tdd
+    * Builds and Runs the tests
+* do_cmake
+    * regenerates the cmake files (useful when you add or remove a file from the tests)
+* defconfig
+    * Generates the default config
+* menuconfig
+    * Generates the full menu config (should the defaults not be good)
+* clean
+    * Cleans (removes) the `build-test` folder
+
 
