@@ -49,13 +49,13 @@ Cribbed much from Clay Dowlings [`holidaylights`](https://gitlab.com/ClayDowling
 
 * Still working on getting a good build target to put in the root make. For now these steps seem to get it built and run:
 ```shell
-rm -rf build
-make defconfig
-cd build 
+rm -rf build-test/
+make BUILD_DIR_BASE="$(PWD)/build-test" defconfig
+cd build-test 
 cmake -DTDD=true .. 
 make tdd
 ```
-I will likely try to set it up so that there is a `test-build` folder so that the `build` folder is left untarnished by the tests (and the need to bnlow it away every time).
+I have it making the test build in the folder `build-test/`. It is still using the manual commands and only CMake for now.
 
 The TDD build is currently only CMake. It might end up staying that way. It is not yet clear to me whether the RTOS_SDK supports the full `idf.py` style building. The Makefile in the root does appear to invoke the `CMakeLists.txt`files and itself is running some of the `esp-idf` tools, so maybe it just runs `idf.py`.
 

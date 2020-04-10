@@ -36,8 +36,8 @@ include_directories(SYSTEM $ENV{IDF_PATH}/components/freertos/include/freertos/p
 
 # These folders are created by the `make defconfig` command (or the `make menuconfig`)
 # with idf.py.  Test builds will fail until you do that.
-include_directories(${PROJECT_SOURCE_DIR}/build/config)
-include_directories(${PROJECT_SOURCE_DIR}/build/include)
+include_directories(${PROJECT_SOURCE_DIR}/build-test/config)
+include_directories(${PROJECT_SOURCE_DIR}/build-test/include)
 
 # Directories needed for this project
 include_directories(${PROJECT_SOURCE_DIR}/main)
