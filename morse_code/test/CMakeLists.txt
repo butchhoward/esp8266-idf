@@ -60,9 +60,10 @@ FILE(GLOB SUT_SRC ../main/*.c)
 # <PROJECTNAME>-test (defined one level up).
 add_executable(${PROJECT_TEST} ${TEST_SRC} ${SUT_SRC} ${MOCK_SRC} )
 
-add_custom_target(tdd ./${PROJECT_TEST}
-        DEPENDS ${PROJECT_TEST}
-    )
+add_custom_target(
+    tdd ALL ./${PROJECT_TEST}
+    DEPENDS ${PROJECT_TEST}
+)
 
 # This says the that executable phonebooth-esp-idf-test will be
 # linked with the unity library.
