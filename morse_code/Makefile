@@ -5,5 +5,9 @@
 
 PROJECT_NAME := morse_code
 
+ESPTOOL_PORT := "/dec/cu.SLAB_USBtoUART"
+ESPTOOL_FF := "80m"
+ESPTOOL_FS := "4m"
+
 include $(IDF_PATH)/make/project.mk
 
