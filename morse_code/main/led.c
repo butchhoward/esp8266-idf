@@ -7,7 +7,7 @@ esp_err_t (*gpio_set_direction_impl)(gpio_num_t, gpio_mode_t) = gpio_set_directi
 void led_setup()
 {
     gpio_set_direction_impl(LED_BUILTIN, GPIO_MODE_OUTPUT);
-    gpio_set_level_impl(LED_BUILTIN, HIGH);   // Turn the LED off by making the voltage HIGH
+    led_off();
 }
 
 void led_on()
