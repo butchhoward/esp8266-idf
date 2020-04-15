@@ -108,7 +108,6 @@ void morse_word_delay()
 void (*morse_dot)(void) = morse_dot_impl;
 void morse_dot_impl()
 {
-    printf("*");
     led_on();
     morse_dot_delay();
     led_off();
@@ -117,7 +116,6 @@ void morse_dot_impl()
 void (*morse_dash)(void) = morse_dash_impl;
 void morse_dash_impl()
 {
-    printf("-");
     led_on();
     morse_dash_delay();
     led_off();
@@ -137,7 +135,6 @@ void morse_letter_symbols( const MORSE_SYMBOL* symbols)
         }
         morse_symbol_delay();
     }
-    printf(" ");
 }
 
 void (*morse_letter)(const char c) = morse_letter_impl;
@@ -160,7 +157,6 @@ void morse_letter_impl(const char c)
 
 void morse_word(const char* word)
 {
-    printf("'%s'=", word);
 
     for (; *word; word++)
     {
@@ -168,5 +164,4 @@ void morse_word(const char* word)
     }
     morse_word_delay();
 
-    printf("\n");
 }

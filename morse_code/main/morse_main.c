@@ -15,7 +15,6 @@ void morse_sos()
 
 void app_main()
 {
-    printf("Morse SOS!\n");
     led_setup();
 
     while(true)
