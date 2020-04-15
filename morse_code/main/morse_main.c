@@ -15,14 +15,11 @@ void morse_sos()
 
 void app_main()
 {
-    printf("Blinky!\n");
+    printf("Morse SOS!\n");
     led_setup();
 
     while(true)
     {
         morse_sos();
-        // morse_word_delay();
-        // morse_word_delay();
-        // morse_word_delay();
     }
 }

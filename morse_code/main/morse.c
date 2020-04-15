@@ -1,14 +1,10 @@
 #include "morse.h"
 #include "led.h"
 #include <stdio.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 
-#define DOT_TIME 200
-#define DASH_TIME (DOT_TIME * 3)
-#define SYMBOL_SPACE DOT_TIME
-#define LETTER_SPACE (DOT_TIME * 3)
-#define WORD_SPACE (DOT_TIME * 7)
+#include "morse_priv.h"
+
+void (*vTaskDelay_impl)(const TickType_t xTicksToDelay) = vTaskDelay;
 
 #define MORSE_MAX_SYMBOLS 10
 
@@ -82,32 +78,35 @@ MORSE_CODE MORSE_CODES[] = {
     ,{'\0', {STOP}}
 };
 
-void morse_dot_delay()
+void (*morse_dot_delay)(void) = morse_dot_delay_impl;
+void morse_dot_delay_impl()
 {
-    vTaskDelay(DOT_TIME / portTICK_RATE_MS);
+    vTaskDelay_impl(DOT_TIME / portTICK_RATE_MS);
 }
 
-void morse_dash_delay()
+void (*morse_dash_delay)(void) = morse_dash_delay_impl;
+void morse_dash_delay_impl()
 {
-    vTaskDelay(DASH_TIME / portTICK_RATE_MS);
+    vTaskDelay_impl(DASH_TIME / portTICK_RATE_MS);
 }
 
 void morse_symbol_delay()
 {
-    vTaskDelay(SYMBOL_SPACE / portTICK_RATE_MS);
+    vTaskDelay_impl(SYMBOL_SPACE / portTICK_RATE_MS);
 }
 
 void morse_letter_delay()
 {
-    vTaskDelay(LETTER_SPACE / portTICK_RATE_MS);
+    vTaskDelay_impl(LETTER_SPACE / portTICK_RATE_MS);
 }
 
 void morse_word_delay()
 {
-    vTaskDelay(WORD_SPACE / portTICK_RATE_MS);
+    vTaskDelay_impl(WORD_SPACE / portTICK_RATE_MS);
 }
 
-void morse_dot()
+void (*morse_dot)(void) = morse_dot_impl;
+void morse_dot_impl()
 {
     printf("*");
     led_on();
@@ -115,7 +114,8 @@ void morse_dot()
     led_off();
 }
 
-void morse_dash()
+void (*morse_dash)(void) = morse_dash_impl;
+void morse_dash_impl()
 {
     printf("-");
     led_on();
@@ -140,7 +140,8 @@ void morse_letter_symbols( const MORSE_SYMBOL* symbols)
     printf(" ");
 }
 
-void morse_letter(const char c)
+void (*morse_letter)(const char c) = morse_letter_impl;
+void morse_letter_impl(const char c)
 {
     MORSE_CODE* S = &MORSE_CODES[0];
     for (; S->letter != '\0'; S++)

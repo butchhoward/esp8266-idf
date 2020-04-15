@@ -2,6 +2,7 @@
 
 static void run_all_tests(void) {
   RUN_TEST_GROUP(led);
+  RUN_TEST_GROUP(morse);
 }
 
 int main(int argc, const char **argv) {
