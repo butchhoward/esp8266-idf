@@ -3,6 +3,7 @@
 #include "fff.h"
 
 #include "led.h"
+#include "led_priv.h"
 #include "morse.h"
 #include "morse_priv.h"
 
