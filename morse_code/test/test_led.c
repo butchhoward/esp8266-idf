@@ -41,7 +41,7 @@ TEST(led, setup_sets_level_to_high)
 
     TEST_ASSERT_EQUAL(1, gpio_set_level_mock_fake.call_count);
     TEST_ASSERT_EQUAL(LED_BUILTIN, gpio_set_level_mock_fake.arg0_val);
-    TEST_ASSERT_EQUAL(HIGH, gpio_set_level_mock_fake.arg1_val);
+    TEST_ASSERT_EQUAL(HIGH_LEVEL, gpio_set_level_mock_fake.arg1_val);
 }
 
 TEST(led, on_sets_level_low)
@@ -52,7 +52,7 @@ TEST(led, on_sets_level_low)
 
     TEST_ASSERT_EQUAL(1, gpio_set_level_mock_fake.call_count);
     TEST_ASSERT_EQUAL(LED_BUILTIN, gpio_set_level_mock_fake.arg0_val);
-    TEST_ASSERT_EQUAL(LOW, gpio_set_level_mock_fake.arg1_val);
+    TEST_ASSERT_EQUAL(LOW_LEVEL, gpio_set_level_mock_fake.arg1_val);
 }
 
 TEST(led, off_sets_level_high)
@@ -63,7 +63,7 @@ TEST(led, off_sets_level_high)
 
     TEST_ASSERT_EQUAL(1, gpio_set_level_mock_fake.call_count);
     TEST_ASSERT_EQUAL(LED_BUILTIN, gpio_set_level_mock_fake.arg0_val);
-    TEST_ASSERT_EQUAL(HIGH, gpio_set_level_mock_fake.arg1_val);
+    TEST_ASSERT_EQUAL(HIGH_LEVEL, gpio_set_level_mock_fake.arg1_val);
 }
 
 TEST_GROUP_RUNNER(led) {

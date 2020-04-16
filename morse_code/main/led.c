@@ -13,13 +13,11 @@ void led_setup()
 void (*led_on)(void) = led_on_impl;
 void led_on_impl()
 {
-    gpio_set_level_impl(LED_BUILTIN, LOW);   // Turn the LED on (Note that LOW is the voltage level
-                                        // but actually the LED is on; this is because
-                                        // it is active low on the ESP-01)
+    gpio_set_level_impl(LED_BUILTIN, LED_ON_LEVEL);
 }
 
 void (*led_off)(void) = led_off_impl;
 void led_off_impl()
 {
-    gpio_set_level_impl(LED_BUILTIN, HIGH);   // Turn the LED off by making the voltage HIGH
+    gpio_set_level_impl(LED_BUILTIN, LED_OFF_LEVEL);   // Turn the LED off by making the voltage HIGH
 }
