@@ -1,40 +1,19 @@
 # Morse Code Example for ESP8266 using ESP8266_RTOS_SDK
 
 
-To make some of the config things easier, I have changed the `$(IDF_PATH)/components/esptool_py/Kconfig.projbuild` file have defaults matching the device I am using:
+Using `sdkconfig.defaults` to hold the config settings that match the current device.
 
-```diff
-diff --git a/components/esptool_py/Kconfig.projbuild b/components/esptool_py/Kconfig.projbuild
-index 46230a81..f869ada4 100644
---- a/components/esptool_py/Kconfig.projbuild
-+++ b/components/esptool_py/Kconfig.projbuild
-@@ -2,7 +2,7 @@ menu "Serial flasher config"
+## Building for flash
 
- config ESPTOOLPY_PORT
-        string "Default serial port"
--       default "/dev/ttyUSB0"
-+       default "/dev/cu.SLAB_USBtoUART"
-        help
-                The serial port that's connected to the ESP chip. This can be overridden by setting the ESPPORT
-                environment variable.
-@@ -84,7 +84,7 @@ config SPI_FLASH_MODE
-
- choice ESPTOOLPY_FLASHFREQ
-        prompt "Flash SPI speed"
--       default ESPTOOLPY_FLASHFREQ_40M
-+       default ESPTOOLPY_FLASHFREQ_80M
-        help
-                The SPI flash frequency to be used.
-
-@@ -114,7 +114,7 @@ config SPI_FLASH_FREQ
-
- choice ESPTOOLPY_FLASHSIZE
-        prompt "Flash size"
--       default ESPTOOLPY_FLASHSIZE_2MB
-+       default ESPTOOLPY_FLASHSIZE_4MB
+```shell
+make defconfig flash
 ```
 
+If the `defconfig` or `menuconfig` targets have been used at least once (since a clean), then you can just
 
+```shell
+make flash
+```
 
 ## Adding Tests
 
@@ -58,6 +37,8 @@ make -f Makefile.tdd
 Provides these targets using the `build-test` folder as the output location:
 * all
     * Generates the default config
+    * builds the tests
+    * runs the tests
 * CMakes the `build-test`
     * Builds and Runs the tests
 * tdd

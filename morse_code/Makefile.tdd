@@ -5,11 +5,6 @@
 
 PROJECT_NAME := morse_code
 
-ESPTOOL_PORT := "/dec/cu.SLAB_USBtoUART"
-ESPTOOL_FF := "80m"
-ESPTOOL_FS := "4m"
-
-
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
 PROJECT_PATH := $(abspath $(dir $(firstword $(MAKEFILE_LIST))))
