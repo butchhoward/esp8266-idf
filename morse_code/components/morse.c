@@ -76,6 +76,22 @@ MORSE_CODE MORSE_CODES[] = {
     ,{'\0', {STOP}}
 };
 
+
+void* morse_setup(void* led_config)
+{
+    morse_config_t* config = malloc(sizeof(morse_config_t));
+    config->led_config = led_config;
+
+    return config;
+}
+
+void morse_cleanup(void* morse_config)
+{
+    morse_config_t* c = morse_config;
+    free(c->led_config);
+    free(c);
+}
+
 void (*morse_dot_delay)(void) = morse_dot_delay_impl;
 void morse_dot_delay_impl()
 {

@@ -7,6 +7,8 @@
 #include "morse.h"
 #include "internal/morse_priv.h"
 
+#include "leds.h"
+
 DEFINE_FFF_GLOBALS;
 
 FAKE_VOID_FUNC(vTaskDelay_mock,const TickType_t);
@@ -50,6 +52,28 @@ TEST_TEAR_DOWN(morse)
     led_on = led_on_impl;
     led_off = led_off_impl;
 }
+
+TEST(morse, configure_defines_led_to_use)
+{
+    void* led_config = leds_setup(LEDS_BUILTIN_RED);
+    void* morse_config = morse_setup(led_config);
+
+    TEST_ASSERT_NOT_NULL(morse_config);
+    TEST_ASSERT_EQUAL(led_config, ((morse_config_t*)morse_config)->led_config);
+
+    morse_cleanup(morse_config);
+}
+
+TEST(morse, dtor_dtors)
+{
+    void* led_config = leds_setup(LEDS_BUILTIN_RED);
+    void* morse_config = morse_setup(led_config);
+
+    TEST_ASSERT_NOT_NULL(morse_config);
+
+    morse_cleanup(morse_config);
+}
+
 
 TEST(morse, dot_delay_delays_one_dot_time)
 {
@@ -143,6 +167,9 @@ TEST(morse, word_calls_letter_for_each_letter_in_word)
 }
 
 TEST_GROUP_RUNNER(morse) {
+    RUN_TEST_CASE(morse, configure_defines_led_to_use);
+    RUN_TEST_CASE(morse, dtor_dtors);
+
     RUN_TEST_CASE(morse, dot_delay_delays_one_dot_time);
     RUN_TEST_CASE(morse, dash_delay_delays_one_dash_time);
 

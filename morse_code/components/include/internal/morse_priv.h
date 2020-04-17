@@ -13,6 +13,12 @@
 #define LETTER_SPACE (DOT_TIME * 3)
 #define WORD_SPACE (DOT_TIME * 7)
 
+typedef struct morse_config_t 
+{
+    void* led_config;
+} morse_config_t;
+
+
 extern void (*morse_dot)(void);
 void morse_dot_impl();
 
