@@ -1,6 +1,6 @@
 #include "unity_fixture.h"
 #include "led.h"
-#include "led_priv.h"
+#include "internal/led_priv.h"
 #include <stdbool.h>
 
 #include "fff.h"

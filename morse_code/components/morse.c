@@ -2,7 +2,7 @@
 #include "led.h"
 #include <stdio.h>
 
-#include "morse_priv.h"
+#include "internal/morse_priv.h"
 
 void (*vTaskDelay_impl)(const TickType_t xTicksToDelay) = vTaskDelay;
 
