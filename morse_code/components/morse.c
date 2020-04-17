@@ -4,8 +4,6 @@
 
 #include "internal/morse_priv.h"
 
-void (*vTaskDelay_impl)(const TickType_t xTicksToDelay) = vTaskDelay;
-
 #define MORSE_MAX_SYMBOLS 10
 
 typedef enum MORSE_SYMBOL {

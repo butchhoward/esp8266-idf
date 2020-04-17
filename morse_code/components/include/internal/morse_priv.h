@@ -4,6 +4,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "indirections.h"
+
+
 #define DOT_TIME 200
 #define DASH_TIME (DOT_TIME * 3)
 #define SYMBOL_SPACE DOT_TIME
@@ -25,6 +28,5 @@ void morse_dash_delay_impl();
 void morse_letter_impl(const char c);
 
 
-extern void (*vTaskDelay_impl)(const TickType_t xTicksToDelay);
 
 #endif
