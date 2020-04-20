@@ -19,10 +19,10 @@ typedef struct morse_config_t
 } morse_config_t;
 
 
-extern void (*morse_dot)(void);
-void morse_dot_impl();
+extern void (*morse_dot)(void*);
+void morse_dot_impl(void*);
 
-extern void (*morse_dash)(void);
+extern void (*morse_dash)(void*);
 void morse_dash_impl();
 
 extern void (*morse_dot_delay)(void);
@@ -31,7 +31,7 @@ void morse_dot_delay_impl();
 extern void (*morse_dash_delay)(void);
 void morse_dash_delay_impl();
 
-void morse_letter_impl(const char c);
+void morse_letter_impl(void*, const char c);
 
 
 

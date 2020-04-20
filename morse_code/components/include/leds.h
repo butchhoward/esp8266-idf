@@ -39,7 +39,7 @@ typedef enum {
 void* leds_setup(LEDS_LED_TYPE led_type);
 void* leds_setup_mode(LEDS_LED_TYPE led_type, LED_MODE mode);
 void leds_cleanup(void* config);
-void leds_on(void* config);
-void leds_off(void* config);
+extern void (*leds_on)(void* config);
+extern void (*leds_off)(void* config);
 
 #endif

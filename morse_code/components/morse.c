@@ -1,5 +1,5 @@
 #include "morse.h"
-#include "led.h"
+#include "leds.h"
 #include <stdio.h>
 
 #include "internal/morse_priv.h"
@@ -119,40 +119,43 @@ void morse_word_delay()
     vTaskDelay_impl(WORD_SPACE / portTICK_RATE_MS);
 }
 
-void (*morse_dot)(void) = morse_dot_impl;
-void morse_dot_impl()
+void (*morse_dot)(void*) = morse_dot_impl;
+void morse_dot_impl(void* config)
 {
-    led_on();
+    morse_config_t* c = (morse_config_t*)config;
+
+    leds_on(c->led_config);
     morse_dot_delay();
-    led_off();
+    leds_off(c->led_config);
 }
 
-void (*morse_dash)(void) = morse_dash_impl;
-void morse_dash_impl()
+void (*morse_dash)(void*) = morse_dash_impl;
+void morse_dash_impl(void* config)
 {
-    led_on();
+    morse_config_t* c = (morse_config_t*)config;
+    leds_on(c->led_config);
     morse_dash_delay();
-    led_off();
+    leds_off(c->led_config);
 }
 
-void morse_letter_symbols( const MORSE_SYMBOL* symbols)
+void morse_letter_symbols(void* config, const MORSE_SYMBOL* symbols)
 {
     for (;*symbols != STOP; symbols++)
     {
         if (*symbols == DOT)
         {
-            morse_dot();
+            morse_dot(config);
         }
         else 
         {
-            morse_dash();
+            morse_dash(config);
         }
         morse_symbol_delay();
     }
 }
 
-void (*morse_letter)(const char c) = morse_letter_impl;
-void morse_letter_impl(const char c)
+void (*morse_letter)(void* config, const char c) = morse_letter_impl;
+void morse_letter_impl(void* config, const char c)
 {
     MORSE_CODE* S = &MORSE_CODES[0];
     for (; S->letter != '\0'; S++)
@@ -164,17 +167,17 @@ void morse_letter_impl(const char c)
     }
     if (S->letter != '\0')
     {
-        morse_letter_symbols( S->code );
+        morse_letter_symbols(config, S->code );
         morse_letter_delay();
     }
 }
 
-void morse_word(const char* word)
+void morse_word(void* config, const char* word)
 {
 
     for (; *word; word++)
     {
-        morse_letter(*word);
+        morse_letter(config, *word);
     }
     morse_word_delay();
 
