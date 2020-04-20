@@ -8,14 +8,22 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 
+SemaphoreHandle_t led_semaphore = NULL;
 
 static void morse_task(void *morse_config)
 {
     char sos[] = "SOS";
     for (;;)
     {
+        //wait (possibly forever) for the semaphore to become available
+        xSemaphoreTake( led_semaphore, portMAX_DELAY );
         morse_word(morse_config, sos);
+        xSemaphoreGive( led_semaphore );
+
+        //must yield/delay in some way to give the task manager time to go to another task
+        taskYIELD();
     }
 }
 
@@ -23,6 +31,17 @@ static void morse_task(void *morse_config)
 void app_main()
 {
     printf("start of main\n");
+
+    led_semaphore =  xSemaphoreCreateBinary();
+    if (led_semaphore == NULL)
+    {
+        printf("semaphore creation failed\n");
+        return;
+    }
+    //Semaphore has to be given before it can be taken. Whichever takes first gets it.
+    xSemaphoreGive( led_semaphore );
+
+
     void* led_red_config = leds_setup(LEDS_BUILTIN_RED);
     void* morse_red_config = morse_setup(led_red_config);
 
@@ -40,8 +59,7 @@ void app_main()
     //since our morse_config objects are alocated from the heap, they are still valid unless we foolishly delete them here
     //  (in which case, the task will probably continue to work because the memory is likely not scrubbed.)
 
-    //I put the scope on this version to see how close the leds were in timing.  The red led (first task added)
-    //fires the led about 20us before the blue led.
+    //Using a semaphore to let each color task complete its message without the other flashing.
 
     printf("end of main\n");
 }
