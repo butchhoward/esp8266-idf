@@ -72,3 +72,10 @@ Which indicates the bootloader overhead (code plus memory reservations) is 13411
 
 
 
+### morse_code
+
+Explore a bit more complex blinky behavior. 
+
+* morse code output to experiment with delays
+* multiple LEDs to experiment with created a flexible LED driver
+* using tasks to run the code to explore freeRTOS multitasking
