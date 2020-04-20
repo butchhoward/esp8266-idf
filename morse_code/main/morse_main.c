@@ -22,6 +22,7 @@ static void morse_task(void *morse_config)
 
 void app_main()
 {
+    printf("start of main\n");
     void* led_red_config = leds_setup(LEDS_BUILTIN_RED);
     void* morse_red_config = morse_setup(led_red_config);
 
@@ -31,6 +32,13 @@ void app_main()
     xTaskCreate(morse_task, "sos_red", 2048, morse_red_config, 10, NULL);
     xTaskCreate(morse_task, "sos_blue", 2048, morse_blue_config, 10, NULL);
 
-    morse_cleanup(morse_blue_config);
-    morse_cleanup(morse_red_config);
+    //the actual entry point of the program is defined in the linker scripts as call_start_cpu()
+    //call_start_cpu() creates a task with the function user_init_entry() and starts the task scheduler
+    //user_init_entry() does some things, calls app_main(), then calls vTaskDelete after main exits causing its task to be deleted
+    //the task scheduler is still running and will execute any other task that were created
+    
+    //since our morse_config objects are alocated from the heap, they are still valid unless we foolishly delete them here
+    //  (in which case, the task will probably continue to work because the memory is likely not scrubbed.)
+
+    printf("end of main\n");
 }
