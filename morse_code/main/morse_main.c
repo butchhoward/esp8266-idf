@@ -40,5 +40,8 @@ void app_main()
     //since our morse_config objects are alocated from the heap, they are still valid unless we foolishly delete them here
     //  (in which case, the task will probably continue to work because the memory is likely not scrubbed.)
 
+    //I put the scope on this version to see how close the leds were in timing.  The red led (first task added)
+    //fires the led about 20us before the blue led.
+
     printf("end of main\n");
 }
