@@ -30,7 +30,7 @@ TEST_TEAR_DOWN(leds)
 TEST(leds, ctor_configures_for_red_led)
 {
 
-    void *config = leds_setup(LEDS_BUILTIN_RED);
+    void *config = leds_setup(LEDS_GPIO_16);
 
     TEST_ASSERT_NOT_NULL(config);
     TEST_ASSERT_EQUAL(GPIO_NUM_16, ((leds_config_t*)config)->led_type);
@@ -49,7 +49,7 @@ TEST(leds, ctor_configures_for_red_led)
 TEST(leds, ctor_configures_for_blue_led)
 {
 
-    void *config = leds_setup(LEDS_BUILTIN_BLUE);
+    void *config = leds_setup(LEDS_GPIO_2);
 
     TEST_ASSERT_NOT_NULL(config);
     TEST_ASSERT_EQUAL(GPIO_NUM_2, ((leds_config_t*)config)->led_type);
@@ -64,7 +64,7 @@ TEST(leds, ctor_configures_for_blue_led)
 
 TEST(leds, dtor_dtors)
 {
-    void *config = leds_setup(LEDS_BUILTIN_RED);
+    void *config = leds_setup(LEDS_GPIO_16);
     TEST_ASSERT_NOT_NULL(config);
     leds_cleanup(config);
 
@@ -75,14 +75,14 @@ TEST(leds, dtor_dtors)
 
 TEST(leds, on_sets_level_low)
 {
-    void *config = leds_setup(LEDS_BUILTIN_RED);
+    void *config = leds_setup(LEDS_GPIO_16);
     RESET_FAKE(leds_gpio_set_direction_mock);
     RESET_FAKE(leds_gpio_set_level_mock);
 
     leds_on(config);
 
     TEST_ASSERT_EQUAL(1, leds_gpio_set_level_mock_fake.call_count);
-    TEST_ASSERT_EQUAL(LEDS_BUILTIN_RED, leds_gpio_set_level_mock_fake.arg0_val);
+    TEST_ASSERT_EQUAL(LEDS_GPIO_16, leds_gpio_set_level_mock_fake.arg0_val);
     TEST_ASSERT_EQUAL(LOW_LEVEL, leds_gpio_set_level_mock_fake.arg1_val);
 
     leds_cleanup(config);
@@ -90,14 +90,14 @@ TEST(leds, on_sets_level_low)
 
 TEST(leds, off_sets_level_high)
 {
-    void *config = leds_setup(LEDS_BUILTIN_RED);
+    void *config = leds_setup(LEDS_GPIO_16);
     RESET_FAKE(leds_gpio_set_direction_mock);
     RESET_FAKE(leds_gpio_set_level_mock);
 
     leds_off(config);
 
     TEST_ASSERT_EQUAL(1, leds_gpio_set_level_mock_fake.call_count);
-    TEST_ASSERT_EQUAL(LEDS_BUILTIN_RED, leds_gpio_set_level_mock_fake.arg0_val);
+    TEST_ASSERT_EQUAL(LEDS_GPIO_16, leds_gpio_set_level_mock_fake.arg0_val);
     TEST_ASSERT_EQUAL(HIGH_LEVEL, leds_gpio_set_level_mock_fake.arg1_val);
 
     leds_cleanup(config);

@@ -29,7 +29,7 @@ void* morse_config = 0;
 
 TEST_SETUP(morse) 
 {
-    led_config = leds_setup(LEDS_BUILTIN_RED);
+    led_config = leds_setup(LEDS_GPIO_16);
     morse_config = morse_setup(led_config);
 
     FFF_RESET_HISTORY();

@@ -12,6 +12,20 @@
 
 SemaphoreHandle_t led_semaphore = NULL;
 
+#define DEVICE_TYPE_FEATHER
+// #define DEVICE_TYPE_WAVESHARE
+
+#if defined(DEVICE_TYPE_WAVESHARE)
+    #define LEDS_BUILTIN_RED LEDS_GPIO_16
+    #define LEDS_BUILTIN_BLUE LEDS_GPIO_2
+#elif defined(DEVICE_TYPE_FEATHER)
+    #define LEDS_BUILTIN_RED LEDS_GPIO_0
+    #define LEDS_BUILTIN_BLUE LEDS_GPIO_2
+#else
+    #error "Use a known DEVICE_TYPE_XXX"
+#endif
+
+
 static void morse_task(void *morse_config)
 {
     char sos[] = "SOS";
@@ -42,7 +56,7 @@ void app_main()
     xSemaphoreGive( led_semaphore );
 
 
-    void* led_red_config = leds_setup(LEDS_BUILTIN_RED);
+    void* led_red_config = leds_setup(LEDS_GPIO_0);
     void* morse_red_config = morse_setup(led_red_config);
 
     void* led_blue_config = leds_setup(LEDS_BUILTIN_BLUE);
