@@ -56,11 +56,8 @@ void app_main()
     xSemaphoreGive( led_semaphore );
 
 
-    void* led_red_config = leds_setup(LEDS_GPIO_0);
-    void* morse_red_config = morse_setup(led_red_config);
-
-    void* led_blue_config = leds_setup(LEDS_BUILTIN_BLUE);
-    void* morse_blue_config = morse_setup(led_blue_config);
+    void* morse_red_config = morse_setup_options( leds_setup(LEDS_BUILTIN_RED), 50);
+    void* morse_blue_config = morse_setup_options( leds_setup(LEDS_BUILTIN_BLUE), 100) ;
 
     xTaskCreate(morse_task, "sos_red", 2048, morse_red_config, 10, NULL);
     xTaskCreate(morse_task, "sos_blue", 2048, morse_blue_config, 10, NULL);

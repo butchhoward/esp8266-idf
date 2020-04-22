@@ -14,8 +14,8 @@ FAKE_VOID_FUNC(vTaskDelay_mock,const TickType_t);
 
 FAKE_VOID_FUNC(morse_dot_mock, void*);
 FAKE_VOID_FUNC(morse_dash_mock, void* );
-FAKE_VOID_FUNC(morse_dot_delay_mock);
-FAKE_VOID_FUNC(morse_dash_delay_mock);
+FAKE_VOID_FUNC(morse_dot_delay_mock, void*);
+FAKE_VOID_FUNC(morse_dash_delay_mock, void*);
 FAKE_VOID_FUNC(morse_letter_mock, void*, const char);
 
 FAKE_VOID_FUNC(led_on_mock,void*);
@@ -70,19 +70,37 @@ TEST(morse, configure_defines_led_to_use)
 TEST(morse, dot_delay_delays_one_dot_time)
 {
     vTaskDelay_impl = vTaskDelay_mock;
-    morse_dot_delay();
+    morse_dot_delay(morse_config);
+    morse_config_t* config = morse_config;
 
     TEST_ASSERT_EQUAL(1, vTaskDelay_mock_fake.call_count);
-    TEST_ASSERT_EQUAL(DOT_TIME / portTICK_RATE_MS, vTaskDelay_mock_fake.arg0_history[0]);
+    TEST_ASSERT_EQUAL((config->base_time * 1) / portTICK_RATE_MS, vTaskDelay_mock_fake.arg0_history[0]);
+}
+
+TEST(morse, dot_delay_delays_at_time_convifured_by_setup_options)
+{
+    vTaskDelay_impl = vTaskDelay_mock;
+
+    const unsigned int local_base_time = 100;
+    void* local_morse_config = morse_setup_options(leds_setup(LEDS_GPIO_16), local_base_time);
+
+    morse_dot_delay(local_morse_config);
+    morse_config_t* config = local_morse_config;
+
+    TEST_ASSERT_EQUAL(1, vTaskDelay_mock_fake.call_count);
+    TEST_ASSERT_EQUAL((local_base_time * 1) / portTICK_RATE_MS, vTaskDelay_mock_fake.arg0_history[0]);
+
+    morse_cleanup(local_morse_config);
 }
 
 TEST(morse, dash_delay_delays_one_dash_time)
 {
     vTaskDelay_impl = vTaskDelay_mock;
-    morse_dash_delay();
+    morse_dash_delay(morse_config);
+    morse_config_t* config = morse_config;
 
     TEST_ASSERT_EQUAL(1, vTaskDelay_mock_fake.call_count);
-    TEST_ASSERT_EQUAL(DASH_TIME / portTICK_RATE_MS, vTaskDelay_mock_fake.arg0_history[0]);
+    TEST_ASSERT_EQUAL( (config->base_time * 3) / portTICK_RATE_MS, vTaskDelay_mock_fake.arg0_history[0]);
 }
 
 TEST(morse, dot_turns_led_on_delays_dot_time_turns_led_off)
