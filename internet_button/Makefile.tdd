@@ -1,0 +1,39 @@
+#
+# This is a project Makefile. It is assumed the directory this Makefile resides in is a
+# project subdirectory.
+#
+
+PROJECT_NAME := internet_button
+
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
+
+PROJECT_PATH := $(abspath $(dir $(firstword $(MAKEFILE_LIST))))
+BUILD_DIR_BASE := $(PROJECT_PATH)/build-test
+
+.PHONY: all
+all: $(BUILD_DIR_BASE)/include/sdkconfig.h
+	@$(MAKE) -f $(THIS_FILE) do_cmake
+	@$(MAKE) -f $(THIS_FILE) tdd
+
+.PHONY: tdd
+tdd: 
+	@cmake --build $(BUILD_DIR_BASE) --target tdd
+
+ $(BUILD_DIR_BASE)/include/sdkconfig.h:
+	@$(MAKE) -f $(THIS_FILE) defconfig
+
+.PHONY: do_cmake
+do_cmake:
+	@cmake -DTDD=true -S . -B $(BUILD_DIR_BASE)
+
+.PHONY: defconfig
+defconfig: 
+	+$(MAKE) BUILD_DIR_BASE="$(BUILD_DIR_BASE)" defconfig
+
+.PHONY: menuconfig
+menuconfig:
+	+$(MAKE) BUILD_DIR_BASE="$(BUILD_DIR_BASE)" menuconfig
+
+.PHONY: clean
+clean:
+	rm -rf $(BUILD_DIR_BASE)
