@@ -106,5 +106,5 @@ esp_err_t register_hello_handler(httpd_handle_t server)
 
 esp_err_t unregister_hello_handler(httpd_handle_t server)
 {
-    return httpd_unregister_uri(server, "/hello");
+    return httpd_unregister_uri(server, hello.uri);
 }
