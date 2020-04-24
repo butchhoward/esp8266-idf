@@ -31,9 +31,6 @@ typedef enum {
 #define LOW_LEVEL 0
 #define HIGH_LEVEL 1
 
-#define LED_ON_LEVEL LOW_LEVEL
-#define LED_OFF_LEVEL HIGH_LEVEL
-
 void* leds_setup(LEDS_LED_TYPE led_type);
 void* leds_setup_mode(LEDS_LED_TYPE led_type, LED_MODE mode);
 void leds_cleanup(void* config);

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "leds.h"
+#include "relay.h"
 #include "morse.h"
 #include "gpio_assistant.h"
 
@@ -14,6 +15,18 @@
 
 
 SemaphoreHandle_t led_semaphore = NULL;
+void configure_the_semaphore()
+{
+    led_semaphore =  xSemaphoreCreateBinary();
+    if (led_semaphore == NULL)
+    {
+        printf("semaphore creation failed\n");
+        return;
+    }
+    //Semaphore has to be given before it can be taken. Whichever takes first gets it.
+    xSemaphoreGive( led_semaphore );
+}
+
 
 #define DEVICE_TYPE_FEATHER
 // #define DEVICE_TYPE_WAVESHARE
@@ -28,7 +41,7 @@ SemaphoreHandle_t led_semaphore = NULL;
     #error "Use a known DEVICE_TYPE_XXX"
 #endif
 
-#define RELAY_GPIO LEDS_GPIO_12
+#define RELAY_GPIO GPIO_NUM_12
 
 
 void configure_the_gpio_to_use()
@@ -47,16 +60,7 @@ void configure_the_gpio_to_use()
 }
 
 
-void* relay = 0;
-static void relay_on()
-{
-    leds_on(relay);
-}
-
-static void relay_off()
-{
-    leds_off(relay);
-}
+void* relay_config = 0;
 
 static void toggle_relay()
 {
@@ -64,11 +68,11 @@ static void toggle_relay()
 
     if (relay_flag)
     {
-        relay_on();
+        relay_on(relay_config);
     }
     else 
     {
-        relay_off();
+        relay_off(relay_config);
     }
     relay_flag = !relay_flag;
 }
@@ -95,18 +99,10 @@ void app_main()
 {
     printf("start of main\n");
 
-    led_semaphore =  xSemaphoreCreateBinary();
-    if (led_semaphore == NULL)
-    {
-        printf("semaphore creation failed\n");
-        return;
-    }
-    //Semaphore has to be given before it can be taken. Whichever takes first gets it.
-    xSemaphoreGive( led_semaphore );
-
+    configure_the_semaphore();
     configure_the_gpio_to_use();
 
-    relay = leds_setup_mode(RELAY_GPIO, LED_ACTIVE_HIGH);
+    relay_config = relay_setup_mode(RELAY_GPIO, RELAY_ACTIVE_HIGH);
     void* morse_red_config = morse_setup_options( leds_setup(LEDS_BUILTIN_RED), 50);
     void* morse_blue_config = morse_setup_options( leds_setup(LEDS_BUILTIN_BLUE), 100) ;
 
