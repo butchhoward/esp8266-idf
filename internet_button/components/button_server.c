@@ -2,6 +2,7 @@
 #include "button_server_connect.h"
 #include "hello_handler.h"
 #include "echo_handler.h"
+#include "ctrl_handler.h"
 
 #include <sys/param.h>
 
@@ -20,44 +21,6 @@ static const char *TAG = "button_server";
 
 
 
-/* An HTTP PUT handler. This demonstrates realtime
- * registration and deregistration of URI handlers
- */
-esp_err_t ctrl_put_handler(httpd_req_t *req)
-{
-    char buf;
-    int ret;
-
-    if ((ret = httpd_req_recv(req, &buf, 1)) <= 0) {
-        if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-            httpd_resp_send_408(req);
-        }
-        return ESP_FAIL;
-    }
-
-    if (buf == '0') {
-        /* Handler can be unregistered using the uri string */
-        ESP_LOGI(TAG, "Unregistering /hello and /echo URIs");
-        unregister_hello_handler(req->handle);
-        unregister_echo_handler(req->handle);
-    }
-    else {
-        ESP_LOGI(TAG, "Registering /hello and /echo URIs");
-        register_hello_handler(req->handle);
-        register_echo_handler(req->handle);
-    }
-
-    /* Respond with empty body */
-    httpd_resp_send(req, NULL, 0);
-    return ESP_OK;
-}
-
-httpd_uri_t ctrl = {
-    .uri       = "/ctrl",
-    .method    = HTTP_PUT,
-    .handler   = ctrl_put_handler,
-    .user_ctx  = NULL
-};
 
 httpd_handle_t start_webserver(void)
 {
@@ -71,7 +34,7 @@ httpd_handle_t start_webserver(void)
         ESP_LOGI(TAG, "Registering URI handlers");
         register_hello_handler(server);
         register_echo_handler(server);
-        httpd_register_uri_handler(server, &ctrl);
+        register_ctrl_handler(server);
         return server;
     }
 
