@@ -9,6 +9,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+#include <driver/gpio.h>
+
 
 SemaphoreHandle_t led_semaphore = NULL;
 
@@ -25,6 +27,51 @@ SemaphoreHandle_t led_semaphore = NULL;
     #error "Use a known DEVICE_TYPE_XXX"
 #endif
 
+#define RELAY_GPIO LEDS_GPIO_12
+
+#define GPIO_OUTPUT_PIN_SEL_MASK  ( (1ULL<<RELAY_GPIO) | (1ULL<<LEDS_BUILTIN_RED) | (1ULL<<LEDS_BUILTIN_BLUE) ) 
+
+void configure_the_gpio_to_use()
+{
+    //must configure IO before using it (the built in leds worked by accident)
+    gpio_config_t io_conf;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL_MASK;
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    if (gpio_config(&io_conf) != ESP_OK)
+    {
+        printf("gpio_config failed\n");
+    }
+}
+
+
+void* relay = 0;
+static void relay_on()
+{
+    leds_on(relay);
+}
+
+static void relay_off()
+{
+    leds_off(relay);
+}
+
+static void toggle_relay()
+{
+    static bool relay_flag = false;
+
+    if (relay_flag)
+    {
+        relay_on();
+    }
+    else 
+    {
+        relay_off();
+    }
+    relay_flag = !relay_flag;
+}
 
 static void morse_task(void *morse_config)
 {
@@ -33,6 +80,7 @@ static void morse_task(void *morse_config)
     {
         //wait (possibly forever) for the semaphore to become available
         xSemaphoreTake( led_semaphore, portMAX_DELAY );
+        toggle_relay();
         morse_word(morse_config, sos);
         xSemaphoreGive( led_semaphore );
 
@@ -40,6 +88,7 @@ static void morse_task(void *morse_config)
         taskYIELD();
     }
 }
+
 
 
 void app_main()
@@ -55,22 +104,14 @@ void app_main()
     //Semaphore has to be given before it can be taken. Whichever takes first gets it.
     xSemaphoreGive( led_semaphore );
 
+    configure_the_gpio_to_use();
 
+    relay = leds_setup_mode(RELAY_GPIO, LED_ACTIVE_HIGH);
     void* morse_red_config = morse_setup_options( leds_setup(LEDS_BUILTIN_RED), 50);
     void* morse_blue_config = morse_setup_options( leds_setup(LEDS_BUILTIN_BLUE), 100) ;
 
     xTaskCreate(morse_task, "sos_red", 2048, morse_red_config, 10, NULL);
     xTaskCreate(morse_task, "sos_blue", 2048, morse_blue_config, 10, NULL);
-
-    //the actual entry point of the program is defined in the linker scripts as call_start_cpu()
-    //call_start_cpu() creates a task with the function user_init_entry() and starts the task scheduler
-    //user_init_entry() does some things, calls app_main(), then calls vTaskDelete after main exits causing its task to be deleted
-    //the task scheduler is still running and will execute any other task that were created
-    
-    //since our morse_config objects are alocated from the heap, they are still valid unless we foolishly delete them here
-    //  (in which case, the task will probably continue to work because the memory is likely not scrubbed.)
-
-    //Using a semaphore to let each color task complete its message without the other flashing.
 
     printf("end of main\n");
 }
