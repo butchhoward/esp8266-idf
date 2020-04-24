@@ -15,6 +15,73 @@
 
 static const char *TAG="hello_handler";
 
+static const char* HELLO_BACK_AT_YA=
+"<!DOCTYPE html>"
+"<html>"
+""
+"<head>"
+"    <title>"
+"        Knitting Lamp"
+"    </title> "
+"      "
+"    <!-- Style to create button -->"
+"    <style> "
+"html, body {"
+"  margin: 0;"
+"  padding: 0;"
+"  height: 100%;"
+"}"
+""
+"body {"
+"  display: flex; /* or css grid for more intricate layouts */"
+"  flex-direction: column;"
+"}"
+""
+"#top {"
+"  background-color: black;"
+"  height: 150px;"
+"  border-bottom: 3px solid Crimson;"
+"}"
+""
+"#pagewrap {"
+"  background-color: black;"
+"  flex-grow: 1; /* make it stretch to the bottom even if little content */"
+"  overflow-y: scroll; /* optional */"
+"}"
+"        .LAMPBUTTON { "
+"            background-color: LightGreen; "
+"            border: 2px solid black; "
+"            color: black; "
+"            padding: 5px 10px; "
+"            text-align: center; "
+"            display: inline-block; "
+"            font-size: 20px; "
+"            margin: 10px 30px; "
+"            cursor: pointer; "
+"            text-decoration:none;"
+"            width:80vw;"
+"            height:30vh;"
+"        }"
+"        .LAMPBUTTON_RED {"
+"            background-color: LightCoral; "
+"        }"
+"    </style>"
+"</head>"
+""
+"<body>"
+"    <h1>Knitting Lamp</h1>"
+"<div id=pagewrap>"
+"    <div><a href=\"http://10.10.1.252/hello?action=on\" class=\"LAMPBUTTON\">"
+"        Lamp ON"
+"    </a></div> "
+"    <div><a href=\"http://10.10.1.252/hello?action=off\" class=\"LAMPBUTTON LAMPBUTTON_RED\">"
+"        Lamp OFF"
+"    </a></div>"
+"</div>"
+"</body>"
+""
+"</html>";
+
 /* An HTTP GET handler */
 esp_err_t hello_get_handler(httpd_req_t *req)
 {
@@ -79,7 +146,7 @@ esp_err_t hello_get_handler(httpd_req_t *req)
 
     /* Send response with custom headers and body set as the
      * string passed in user context*/
-    const char* resp_str = (const char*) req->user_ctx;
+    const char* resp_str = (const char*)HELLO_BACK_AT_YA;  //req->user_ctx;
     httpd_resp_send(req, resp_str, strlen(resp_str));
 
     /* After sending the HTTP response the old HTTP request
