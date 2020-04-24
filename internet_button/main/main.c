@@ -1,4 +1,4 @@
-/* Blinky
+/* Internet Button
 */
 
 #include <stdio.h>
