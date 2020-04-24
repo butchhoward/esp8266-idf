@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "leds.h"
 #include "morse.h"
+#include "gpio_assistant.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -29,7 +30,6 @@ SemaphoreHandle_t led_semaphore = NULL;
 
 #define RELAY_GPIO LEDS_GPIO_12
 
-#define GPIO_OUTPUT_PIN_SEL_MASK  ( (1ULL<<RELAY_GPIO) | (1ULL<<LEDS_BUILTIN_RED) | (1ULL<<LEDS_BUILTIN_BLUE) ) 
 
 void configure_the_gpio_to_use()
 {
@@ -37,7 +37,7 @@ void configure_the_gpio_to_use()
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL_MASK;
+    io_conf.pin_bit_mask = gpio_build_pin_select_mask(3, RELAY_GPIO, LEDS_BUILTIN_RED, LEDS_BUILTIN_BLUE);
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     if (gpio_config(&io_conf) != ESP_OK)
