@@ -3,6 +3,7 @@
 #include "gpio_assistant.h"
 
 #include <sys/param.h>
+#include <stdio.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -21,68 +22,61 @@ static const char *TAG="lamp_handler";
 static const char* HELLO_BACK_AT_YA=
 "<!DOCTYPE html>"
 "<html>"
-""
-"<head>"
-"    <title>"
-"        Knitting Lamp"
-"    </title> "
-"      "
-"    <!-- Style to create button -->"
-"    <style> "
-"html, body {"
-"  margin: 0;"
-"  padding: 0;"
-"  height: 100%;"
-"}"
-""
-"body {"
-"  display: flex; /* or css grid for more intricate layouts */"
-"  flex-direction: column;"
-"}"
-""
-"#top {"
-"  background-color: black;"
-"  height: 150px;"
-"  border-bottom: 3px solid Crimson;"
-"}"
-""
-"#pagewrap {"
-"  background-color: black;"
-"  flex-grow: 1; /* make it stretch to the bottom even if little content */"
-"  overflow-y: scroll; /* optional */"
-"}"
-"        .LAMPBUTTON { "
-"            background-color: LightGreen; "
-"            border: 2px solid black; "
-"            color: black; "
-"            padding: 5px 10px; "
-"            text-align: center; "
-"            display: inline-block; "
-"            font-size: 20px; "
-"            margin: 10px 30px; "
-"            cursor: pointer; "
-"            text-decoration:none;"
-"            width:80vw;"
-"            height:30vh;"
-"        }"
-"        .LAMPBUTTON_RED {"
-"            background-color: LightCoral; "
-"        }"
-"    </style>"
-"</head>"
-""
-"<body>"
-"    <h1>Knitting Lamp</h1>"
-"<div id=pagewrap>"
-"    <div><a href=\"http://10.10.1.252/lamp/on\" class=\"LAMPBUTTON\">"
-"        Lamp ON"
-"    </a></div> "
-"    <div><a href=\"http://10.10.1.252/lamp/off\" class=\"LAMPBUTTON LAMPBUTTON_RED\">"
-"        Lamp OFF"
-"    </a></div>"
-"</div>"
-"</body>"
-""
+    "<head>"
+        "<title>Knitting Lamp</title>"
+        "<style>"
+            "html, body {"
+                "margin: 0;"
+                "padding: 0;"
+                "height: 100%%;"
+            "}"
+            "body {"
+                "display: flex; /* or css grid for more intricate layouts */"
+                "flex-direction: column;"
+                "text-align: center;"
+            "}"
+            "#pagewrap {"
+                "background-color: black;"
+                "flex-grow: 1;"
+                "overflow-y: scroll;"
+                "display: inline-block;"
+            "}"
+            ".LAMPBUTTON {"
+                "background-color: LightGreen;"
+                "border: 2px solid black;"
+                "color: black;"
+                "padding: 5px 10px;"
+                "text-align: center;"
+                "display: inline-block;"
+                "font-size: 20px; "
+                "margin: 10px 30px; "
+                "cursor: pointer; "
+                "text-decoration:none;"
+                "width:80vw;"
+                "height:40vh;"
+            "}"
+            ".OFF_RED {"
+                "background-color: LightCoral;"
+            "}"
+            ".ON_RED {"
+                "background-color: red;"
+            "}"
+            ".OFF_GREEN {"
+                "background-color: green;"
+            "}"
+            ".ON_GREEN {"
+                "background-color: LightGreen;"
+            "}"
+        "</style>"
+    "</head>"
+    "<body>"
+        "<h1>Knitting Lamp</h1>"
+        "<div id=pagewrap>"
+            "<div><a href=\"http://10.10.1.252/lamp/on\" class=\"LAMPBUTTON %s\">Lamp ON</a></div>"
+            "<div><a href=\"http://10.10.1.252/lamp/off\" class=\"LAMPBUTTON %s\">Lamp OFF</a></div>"
+        "</div>"
+        "<div><p>Currently: %s</p></div>"
+    "</body>"
 "</html>";
 
 #define RELAY_GPIO GPIO_NUM_12
@@ -110,18 +104,42 @@ typedef struct lamp_user_ctx_t
     unsigned int on_count;
     unsigned int off_count;
     int64_t time_last_change;
+    int64_t elapsed;
+    bool currently_on;
 } lamp_user_ctx_t;
 
 
 static esp_err_t lamp_get_response(httpd_req_t *req)
 {
+    esp_err_t err = ESP_OK;
+    lamp_user_ctx_t* lamp_ctx = (lamp_user_ctx_t*)(req->user_ctx);
 
-    /* Send response with custom headers and body set as the
-     * string passed in user context*/
-    const char* resp_str = (const char*)HELLO_BACK_AT_YA;
-    httpd_resp_send(req, resp_str, strlen(resp_str));
+    ESP_LOGI(TAG, "lamp_get_response on=%u off=%u %s last=%d elapsed=%d", 
+        lamp_ctx->on_count, 
+        lamp_ctx->off_count, 
+        (lamp_ctx->currently_on ? "ON" : "OFF"),
+        (int32_t)(lamp_ctx->time_last_change/1000000LL), 
+        (int32_t)(lamp_ctx->elapsed/1000000LL)
+    );
 
-    return ESP_OK;
+    char* resp_str = NULL;
+    int ret = asprintf(&resp_str, HELLO_BACK_AT_YA,
+        (lamp_ctx->currently_on ? "ON_GREEN" : "OFF_GREEN"),
+        (lamp_ctx->currently_on ? "ON_RED" : "OFF_RED"),
+        (lamp_ctx->currently_on ? "ON" : "OFF")
+    );
+
+    if (ret < 0)
+    {
+        err = httpd_resp_send_500(req);
+    }
+    else
+    {
+        err = httpd_resp_send(req, resp_str, strlen(resp_str));
+        free(resp_str);
+    }
+
+    return err;
 }
 
 static esp_err_t lamp_on_handler(httpd_req_t *req)
@@ -133,11 +151,11 @@ static esp_err_t lamp_on_handler(httpd_req_t *req)
     relay_on(lamp_ctx->relay_config);
 
     lamp_ctx->on_count++;
-
+    lamp_ctx->currently_on = true;
+    lamp_ctx->elapsed = esp_timer_get_time() - lamp_ctx->time_last_change;
     lamp_ctx->time_last_change = esp_timer_get_time();
 
     return lamp_get_response(req);
-
 }
 
 static esp_err_t lamp_off_handler(httpd_req_t *req)
@@ -149,7 +167,8 @@ static esp_err_t lamp_off_handler(httpd_req_t *req)
     relay_off(lamp_ctx->relay_config);
 
     lamp_ctx->off_count++;
-
+    lamp_ctx->currently_on = false;
+    lamp_ctx->elapsed = esp_timer_get_time() - lamp_ctx->time_last_change;
     lamp_ctx->time_last_change = esp_timer_get_time();
 
     return lamp_get_response(req);
@@ -168,7 +187,9 @@ lamp_user_ctx_t lamp_ctx = {
     .relay_config = NULL,
     .on_count = 0,
     .off_count = 0,
-    .time_last_change = 0
+    .time_last_change = 0,
+    .elapsed = 0,
+    .currently_on = false
 };
 
 httpd_uri_t lamp_off = {
