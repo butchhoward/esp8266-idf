@@ -1,8 +1,6 @@
 #include "button_server.h"
 #include "button_server_connect.h"
-#include "hello_handler.h"
-#include "echo_handler.h"
-#include "ctrl_handler.h"
+#include "lamp_handler.h"
 
 #include <sys/param.h>
 
@@ -32,9 +30,7 @@ httpd_handle_t start_webserver(void)
     if (httpd_start(&server, &config) == ESP_OK) {
         // Set URI handlers
         ESP_LOGI(TAG, "Registering URI handlers");
-        register_hello_handler(server);
-        register_echo_handler(server);
-        register_ctrl_handler(server);
+        register_lamp_handler(server);
         return server;
     }
 
