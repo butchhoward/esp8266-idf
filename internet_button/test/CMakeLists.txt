@@ -10,6 +10,11 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     add_definitions(-D__time_t_defined)
 endif()
 
+# Some logging macros use __ESP_FILE__ instead of the standard __FILE__.
+# not sure why, but some of the ESP CMake uses this substitution and it 
+# seems to work when building the test files, so...
+add_definitions(-D__ESP_FILE__=__FILE__)
+
 # These make the mock directory and the unity directory 
 # available as a source for header files, so if you have
 # a file unity_fixture.h in the unity directory, you can 
@@ -27,6 +32,21 @@ include_directories(SYSTEM $ENV{IDF_PATH}/components/freertos/include)
 include_directories(SYSTEM $ENV{IDF_PATH}/components/esp8266/include)
 include_directories(SYSTEM $ENV{IDF_PATH}/components/heap/include)
 include_directories(SYSTEM $ENV{IDF_PATH}/components/heap/port/esp8266/include)
+include_directories(SYSTEM $ENV{IDF_PATH}/components/nvs_flash/include)
+
+
+include_directories(SYSTEM $ENV{IDF_PATH}/components/esp_http_server/include)
+include_directories(SYSTEM $ENV{IDF_PATH}/components/http_parser/include)
+include_directories(SYSTEM $ENV{IDF_PATH}/components/tcpip_adapter/include)
+
+include_directories(SYSTEM $ENV{IDF_PATH}/components/esp_event/include)
+include_directories(SYSTEM $ENV{IDF_PATH}/components/log/include)
+
+include_directories(SYSTEM $ENV{IDF_PATH}/components/lwip/lwip/src/include)
+include_directories(SYSTEM $ENV{IDF_PATH}/components/lwip/port/esp8266/include)
+include_directories(SYSTEM $ENV{IDF_PATH}/components/lwip/include/apps/sntp)
+include_directories(SYSTEM $ENV{IDF_PATH}/components/lwip/include/apps)
+
 
 # these seem to be ports to bridge between ESP-IDF and the ESP8266 (?)
 include_directories(SYSTEM $ENV{IDF_PATH}/components/freertos/port/esp8266/include) 

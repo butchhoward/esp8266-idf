@@ -31,6 +31,14 @@
 #define CONNECTED_BITS (GOT_IPV4_BIT)
 #endif
 
+#ifndef CONFIG_BUTTON_WIFI_SSID
+#define CONFIG_BUTTON_WIFI_SSID "TDD_SSID"
+#endif
+#ifndef CONFIG_BUTTON_WIFI_PASSWORD
+#define CONFIG_BUTTON_WIFI_PASSWORD "TDD_SSID_PASSWORD"
+#endif
+
+
 static EventGroupHandle_t s_connect_event_group;
 static ip4_addr_t s_ip_addr;
 static char s_connection_name[32] = CONFIG_BUTTON_WIFI_SSID;
