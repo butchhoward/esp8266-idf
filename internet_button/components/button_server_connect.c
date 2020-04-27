@@ -7,6 +7,7 @@
    CONDITIONS OF ANY KIND, either express or implied.
  */
 #include "button_server_connect.h"
+#include "internal/button_server_connect_priv.h"
 
 #include <string.h>
 
@@ -92,7 +93,8 @@ static void start(void)
     ESP_ERROR_CHECK(esp_wifi_connect());
 }
 
-esp_err_t button_server_connect(void)
+esp_err_t (*button_server_connect)(void) = button_server_connect_impl;
+esp_err_t button_server_connect_impl(void)
 {
     if (s_connect_event_group != NULL) {
         return ESP_ERR_INVALID_STATE;
@@ -107,4 +109,9 @@ esp_err_t button_server_connect(void)
     ESP_LOGI(TAG, "IPv6 address: " IPV6STR, IPV62STR(s_ipv6_addr));
 #endif
     return ESP_OK;
+}
+
+ip4_addr_t button_server_ip_address()
+{
+    return s_ip_addr;
 }

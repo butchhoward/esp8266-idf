@@ -1,4 +1,6 @@
 #include "lamp_handler.h"
+#include "internal/lamp_handler_priv.h"
+
 #include "relay.h"
 #include "gpio_assistant.h"
 
@@ -18,6 +20,8 @@
 #include <esp_http_server.h>
 
 static const char *TAG="lamp_handler";
+
+#define IPSTR_FORMAT "%s"
 
 static const char* HELLO_BACK_AT_YA=
 "<!DOCTYPE html>"
@@ -72,8 +76,8 @@ static const char* HELLO_BACK_AT_YA=
     "<body>"
         "<h1>Knitting Lamp</h1>"
         "<div id=pagewrap>"
-            "<div><a href=\"http://10.10.1.252/lamp/on\" class=\"LAMPBUTTON %s\">Lamp ON</a></div>"
-            "<div><a href=\"http://10.10.1.252/lamp/off\" class=\"LAMPBUTTON %s\">Lamp OFF</a></div>"
+            "<div><a href=\"http://" IPSTR_FORMAT "/lamp/on\" class=\"LAMPBUTTON %s\">Lamp ON</a></div>"
+            "<div><a href=\"http://" IPSTR_FORMAT "/lamp/off\" class=\"LAMPBUTTON %s\">Lamp OFF</a></div>"
         "</div>"
         "<div><p>Currently: %s</p></div>"
     "</body>"
@@ -114,7 +118,19 @@ static esp_err_t lamp_get_response(httpd_req_t *req)
     esp_err_t err = ESP_OK;
     lamp_user_ctx_t* lamp_ctx = (lamp_user_ctx_t*)(req->user_ctx);
 
-    ESP_LOGI(TAG, "lamp_get_response on=%u off=%u %s last=%d elapsed=%d", 
+    tcpip_adapter_ip_info_t ip_info;
+    err = tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip_info);
+    if (ESP_OK != err)
+    {
+        ESP_LOGE(TAG, "tcpip_adapter_get_ip_info failed");
+        return err;
+    }
+
+    static char ipaddress[IP4ADDR_STRLEN_MAX];
+    ip4addr_ntoa_r(&(ip_info.ip), ipaddress, IP4ADDR_STRLEN_MAX);
+
+    ESP_LOGI(TAG, "lamp_get_response IP:" IPSTR_FORMAT " on=%u off=%u %s last=%d elapsed=%d", 
+        ipaddress,
         lamp_ctx->on_count, 
         lamp_ctx->off_count, 
         (lamp_ctx->currently_on ? "ON" : "OFF"),
@@ -124,7 +140,9 @@ static esp_err_t lamp_get_response(httpd_req_t *req)
 
     char* resp_str = NULL;
     int ret = asprintf(&resp_str, HELLO_BACK_AT_YA,
+        ipaddress,
         (lamp_ctx->currently_on ? "ON_GREEN" : "OFF_GREEN"),
+        ipaddress,
         (lamp_ctx->currently_on ? "ON_RED" : "OFF_RED"),
         (lamp_ctx->currently_on ? "ON" : "OFF")
     );
@@ -213,7 +231,8 @@ httpd_uri_t lamp_nothing = {
     .user_ctx  = &lamp_ctx
 };
 
-esp_err_t register_lamp_handler(httpd_handle_t server)
+esp_err_t (*register_lamp_handler)(httpd_handle_t server) = register_lamp_handler_impl;
+esp_err_t register_lamp_handler_impl(httpd_handle_t server)
 {
     esp_err_t err = ESP_OK;
     lamp_ctx.time_last_change =  esp_timer_get_time();
