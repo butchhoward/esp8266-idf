@@ -46,6 +46,8 @@ include_directories(SYSTEM $ENV{IDF_PATH}/components/lwip/lwip/src/include)
 include_directories(SYSTEM $ENV{IDF_PATH}/components/lwip/port/esp8266/include)
 include_directories(SYSTEM $ENV{IDF_PATH}/components/lwip/include/apps/sntp)
 include_directories(SYSTEM $ENV{IDF_PATH}/components/lwip/include/apps)
+include_directories(SYSTEM $ENV{IDF_PATH}/components/mdns/include)
+
 
 
 # these seem to be ports to bridge between ESP-IDF and the ESP8266 (?)

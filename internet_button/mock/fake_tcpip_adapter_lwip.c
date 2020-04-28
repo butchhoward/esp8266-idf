@@ -3,7 +3,7 @@
 
 ESP_EVENT_DEFINE_BASE(IP_EVENT);
 
-char *ipaddr_ntoa_r(const ip_addr_t *addr, char *buf, int buflen)
+char *ip4addr_ntoa_r(const ip4_addr_t *addr, char *buf, int buflen)
 {
     buf[0] = '1';
     buf[0] = '2';

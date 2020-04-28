@@ -6,8 +6,4 @@
 
 extern esp_err_t (*button_server_connect)(void);
 
-ip4_addr_t button_server_ip_address();
-
-
 #endif
-

@@ -1,7 +1,7 @@
 #include "button_server.h"
 #include "button_server_connect.h"
 #include "lamp_handler.h"
-
+#include "internal/indirections_mdns.h"
 #include <sys/param.h>
 
 #include "freertos/FreeRTOS.h"
@@ -16,6 +16,7 @@
 #include "nvs_flash.h"
 
 #include <esp_http_server.h>
+#include <mdns.h>
 
 static const char *TAG = "button_server";
 
@@ -69,6 +70,19 @@ static void connect_handler(void* arg, esp_event_base_t event_base,
     }
 }
 
+
+#define EXAMPLE_MDNS_HOSTNAME "lamp2"
+#define EXAMPLE_MDNS_INSTANCE "the other lamp"
+
+static void initialise_mdns(void)
+{
+    ESP_ERROR_CHECK( mdns_init_impl() );
+    ESP_ERROR_CHECK( mdns_hostname_set_impl(EXAMPLE_MDNS_HOSTNAME) );
+    ESP_ERROR_CHECK( mdns_instance_name_set_impl(EXAMPLE_MDNS_INSTANCE) );
+    ESP_ERROR_CHECK( mdns_service_add_impl(NULL, "_http", "_tcp", 80, NULL, 0) );
+}
+
+
 void start_the_server()
 {
     ESP_ERROR_CHECK(nvs_flash_init());
@@ -76,6 +90,7 @@ void start_the_server()
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     ESP_ERROR_CHECK(button_server_connect());
+    initialise_mdns();
 
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));

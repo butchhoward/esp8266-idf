@@ -111,7 +111,3 @@ esp_err_t button_server_connect_impl(void)
     return ESP_OK;
 }
 
-ip4_addr_t button_server_ip_address()
-{
-    return s_ip_addr;
-}
