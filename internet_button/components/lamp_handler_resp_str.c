@@ -10,7 +10,7 @@ static const char* HELLO_BACK_AT_YA=
 "<!DOCTYPE html>"
 "<html>"
     "<head>"
-        "<title>Knitting Lamp</title>"
+        "<title>" CONFIG_BUTTON_MDNS_INSTANCE "</title>"
         "<style>"
             "html, body {"
                 "margin: 0;"
@@ -57,10 +57,10 @@ static const char* HELLO_BACK_AT_YA=
         "</style>"
     "</head>"
     "<body>"
-        "<h1>Knitting Lamp</h1>"
+        "<h1>" CONFIG_BUTTON_MDNS_INSTANCE "</h1>"
         "<div id=pagewrap>"
-            "<div><a href=\"http://" IPSTR_FORMAT ".local/lamp/on\" class=\"LAMPBUTTON " CLASSNAME_FORMAT "\">Lamp ON</a></div>"
-            "<div><a href=\"http://" IPSTR_FORMAT ".local/lamp/off\" class=\"LAMPBUTTON " CLASSNAME_FORMAT "\">Lamp OFF</a></div>"
+            "<div><a href=\"http://" CONFIG_BUTTON_MDNS_HOSTNAME ".local/lamp/on\" class=\"LAMPBUTTON " CLASSNAME_FORMAT "\">Lamp ON</a></div>"
+            "<div><a href=\"http://" CONFIG_BUTTON_MDNS_HOSTNAME ".local/lamp/off\" class=\"LAMPBUTTON " CLASSNAME_FORMAT "\">Lamp OFF</a></div>"
         "</div>"
         "<div><p>Currently: " STATUS_FORMAT "</p></div>"
     "</body>"
@@ -72,9 +72,7 @@ char* lamp_handler_html_response(const lamp_user_ctx_t* lamp_ctx)
 {
     char* resp_str = NULL;
     int ret = asprintf(&resp_str, HELLO_BACK_AT_YA,
-        CONFIG_BUTTON_MDNS_HOSTNAME,
         (lamp_ctx->currently_on ? "ON_GREEN" : "OFF_GREEN"),
-        CONFIG_BUTTON_MDNS_HOSTNAME,
         (lamp_ctx->currently_on ? "ON_RED" : "OFF_RED"),
         (lamp_ctx->currently_on ? "ON" : "OFF")
     );
