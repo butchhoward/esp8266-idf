@@ -35,3 +35,15 @@ esp_err_t httpd_unregister_uri(httpd_handle_t handle, const char* uri)
     return ESP_OK;
 }
 
+esp_err_t httpd_resp_set_status(httpd_req_t *r, const char *status)
+{
+    return ESP_OK;
+}
+
+esp_err_t httpd_resp_set_hdr(httpd_req_t *r, const char *field, const char *value)
+{
+    return ESP_OK;
+}
+
+
+

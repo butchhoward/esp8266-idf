@@ -67,6 +67,34 @@ static esp_err_t lamp_get_response(httpd_req_t *req)
     return err;
 }
 
+static esp_err_t lamp_post_response(httpd_req_t *req)
+{
+    esp_err_t err = ESP_OK;
+    lamp_user_ctx_t* lamp_ctx = (lamp_user_ctx_t*)(req->user_ctx);
+
+    ESP_LOGI(TAG, "lamp_post_response DNS: %s.local on=%u off=%u %s last=%d elapsed=%d", 
+        CONFIG_BUTTON_MDNS_HOSTNAME,
+        lamp_ctx->on_count, 
+        lamp_ctx->off_count, 
+        (lamp_ctx->currently_on ? "ON" : "OFF"),
+        (int32_t)(lamp_ctx->time_last_change/1000000LL), 
+        (int32_t)(lamp_ctx->elapsed/1000000LL)
+    );
+
+    if ( ESP_OK != httpd_resp_set_hdr(req, "Location", "/") || 
+         ESP_OK != httpd_resp_set_status(req, "303")
+       )
+    {
+        err = httpd_resp_send_500(req);
+    }
+    else
+    {
+        err = httpd_resp_send(req, "redirect after get", -1);
+    }
+
+    return err;
+}
+
 static esp_err_t lamp_on_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "lamp_on_handler");
@@ -80,7 +108,7 @@ static esp_err_t lamp_on_handler(httpd_req_t *req)
     lamp_ctx->elapsed = esp_timer_get_time() - lamp_ctx->time_last_change;
     lamp_ctx->time_last_change = esp_timer_get_time();
 
-    return lamp_get_response(req);
+    return lamp_post_response(req);
 }
 
 static esp_err_t lamp_off_handler(httpd_req_t *req)
@@ -96,7 +124,7 @@ static esp_err_t lamp_off_handler(httpd_req_t *req)
     lamp_ctx->elapsed = esp_timer_get_time() - lamp_ctx->time_last_change;
     lamp_ctx->time_last_change = esp_timer_get_time();
 
-    return lamp_get_response(req);
+    return lamp_post_response(req);
 }
 
 static esp_err_t lamp_nothing_handler(httpd_req_t *req)
@@ -105,8 +133,6 @@ static esp_err_t lamp_nothing_handler(httpd_req_t *req)
 
     return lamp_get_response(req);
 }
-
-
 
 lamp_user_ctx_t lamp_ctx = {
     .relay_config = NULL,
