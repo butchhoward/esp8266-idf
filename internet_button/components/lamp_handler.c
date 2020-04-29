@@ -119,14 +119,14 @@ lamp_user_ctx_t lamp_ctx = {
 
 httpd_uri_t lamp_off = {
     .uri       = "/lamp/off",
-    .method    = HTTP_GET,
+    .method    = HTTP_POST,
     .handler   = lamp_off_handler,
     .user_ctx  = &lamp_ctx
 };
 
 httpd_uri_t lamp_on = {
     .uri       = "/lamp/on",
-    .method    = HTTP_GET,
+    .method    = HTTP_POST,
     .handler   = lamp_on_handler,
     .user_ctx  = &lamp_ctx
 };
