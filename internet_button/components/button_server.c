@@ -71,29 +71,29 @@ static void connect_handler(void* arg, esp_event_base_t event_base,
 }
 
 
-#define EXAMPLE_MDNS_HOSTNAME "lamp2"
-#define EXAMPLE_MDNS_INSTANCE "the other lamp"
+const char* BUTTON_MDNS_HOSTNAME = "lamp2";
+const char* BUTTON_MDNS_INSTANCE = "the other lamp";
 
 static void initialise_mdns(void)
 {
-    ESP_ERROR_CHECK( mdns_init_impl() );
-    ESP_ERROR_CHECK( mdns_hostname_set_impl(EXAMPLE_MDNS_HOSTNAME) );
-    ESP_ERROR_CHECK( mdns_instance_name_set_impl(EXAMPLE_MDNS_INSTANCE) );
-    ESP_ERROR_CHECK( mdns_service_add_impl(NULL, "_http", "_tcp", 80, NULL, 0) );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( mdns_init_impl() );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( mdns_hostname_set_impl(BUTTON_MDNS_HOSTNAME) );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( mdns_instance_name_set_impl(BUTTON_MDNS_INSTANCE) );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( mdns_service_add_impl(NULL, "_http", "_tcp", 80, NULL, 0) );
 }
 
 
 void start_the_server()
 {
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(nvs_flash_init());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_init());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_loop_create_default());
 
-    ESP_ERROR_CHECK(button_server_connect());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(button_server_connect());
     initialise_mdns();
 
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
 
     server = start_webserver();
 }

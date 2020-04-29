@@ -45,6 +45,10 @@ static ip4_addr_t s_ip_addr;
 static char s_connection_name[32] = CONFIG_BUTTON_WIFI_SSID;
 static char s_connection_passwd[32] = CONFIG_BUTTON_WIFI_PASSWORD;
 
+#ifdef CONFIG_BUTTON_CONNECT_IPV6
+static ip6_addr_t s_ipv6_addr;
+#endif
+
 static const char *TAG = "button_server_connect";
 
 static void on_wifi_disconnect(void *arg, esp_event_base_t event_base,
@@ -57,8 +61,16 @@ static void on_wifi_disconnect(void *arg, esp_event_base_t event_base,
         /*Switch to 802.11 bgn mode */
         esp_wifi_set_protocol(ESP_IF_WIFI_STA, WIFI_PROTOCAL_11B | WIFI_PROTOCAL_11G | WIFI_PROTOCAL_11N);
     }
-    ESP_ERROR_CHECK(esp_wifi_connect());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_connect());
 }
+
+#ifdef CONFIG_BUTTON_CONNECT_IPV6
+static void on_wifi_connect(void *arg, esp_event_base_t event_base,
+                            int32_t event_id, void *event_data)
+{
+    tcpip_adapter_create_ip6_linklocal(TCPIP_ADAPTER_IF_STA);
+}
+#endif
 
 static void on_got_ip(void *arg, esp_event_base_t event_base,
                       int32_t event_id, void *event_data)
@@ -68,29 +80,41 @@ static void on_got_ip(void *arg, esp_event_base_t event_base,
     xEventGroupSetBits(s_connect_event_group, GOT_IPV4_BIT);
 }
 
+#ifdef CONFIG_BUTTON_CONNECT_IPV6
+
+static void on_got_ipv6(void *arg, esp_event_base_t event_base,
+                        int32_t event_id, void *event_data)
+{
+    ip_event_got_ip6_t *event = (ip_event_got_ip6_t *)event_data;
+    memcpy(&s_ipv6_addr, &event->ip6_info.ip, sizeof(s_ipv6_addr));
+    xEventGroupSetBits(s_connect_event_group, GOT_IPV6_BIT);
+}
+
+#endif // CONFIG_EXAMPLE_CONNECT_IPV6
+
 static void start(void)
 {
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_init(&cfg));
 
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &on_wifi_disconnect, NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &on_got_ip, NULL));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &on_wifi_disconnect, NULL));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &on_got_ip, NULL));
 #ifdef CONFIG_BUTTON_CONNECT_IPV6
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_CONNECTED, &on_wifi_connect, NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_GOT_IP6, &on_got_ipv6, NULL));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_CONNECTED, &on_wifi_connect, NULL));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_register(IP_EVENT, IP_EVENT_GOT_IP6, &on_got_ipv6, NULL));
 #endif    
 
-    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_storage(WIFI_STORAGE_RAM));
     wifi_config_t wifi_config = { 0 };
 
     strncpy((char *)&wifi_config.sta.ssid, s_connection_name, 32);
     strncpy((char *)&wifi_config.sta.password, s_connection_passwd, 32);
 
     ESP_LOGI(TAG, "Connecting to %s...", wifi_config.sta.ssid);
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
-    ESP_ERROR_CHECK(esp_wifi_start());
-    ESP_ERROR_CHECK(esp_wifi_connect());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_mode(WIFI_MODE_STA));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_start());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_connect());
 }
 
 esp_err_t (*button_server_connect)(void) = button_server_connect_impl;
@@ -110,4 +134,3 @@ esp_err_t button_server_connect_impl(void)
 #endif
     return ESP_OK;
 }
-

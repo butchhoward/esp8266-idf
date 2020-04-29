@@ -5,9 +5,13 @@ menu "Button Connection Configuration"
         help
             SSID (network name) for the example to connect to.
 
+    config BUTTON_DEFINE_WIFI_PASSWORD
+        bool "Define a password for WiFi?"
+        default n
+
     config BUTTON_WIFI_PASSWORD
+        depends on BUTTON_DEFINE_WIFI_PASSWORD
         string "WiFi Password"
-        default "mypassword"
         help
             WiFi password (WPA or WPA2) for the example to use.
             Can be left blank if the network has no security set.

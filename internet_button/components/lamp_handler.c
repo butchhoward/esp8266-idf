@@ -23,6 +23,9 @@ static const char *TAG="lamp_handler";
 
 #define IPSTR_FORMAT "%s"
 
+//blarg, but blarg we will live with for now.
+extern const char* BUTTON_MDNS_HOSTNAME;
+
 static const char* HELLO_BACK_AT_YA=
 "<!DOCTYPE html>"
 "<html>"
@@ -76,8 +79,8 @@ static const char* HELLO_BACK_AT_YA=
     "<body>"
         "<h1>Knitting Lamp</h1>"
         "<div id=pagewrap>"
-            "<div><a href=\"http://" IPSTR_FORMAT "/lamp/on\" class=\"LAMPBUTTON %s\">Lamp ON</a></div>"
-            "<div><a href=\"http://" IPSTR_FORMAT "/lamp/off\" class=\"LAMPBUTTON %s\">Lamp OFF</a></div>"
+            "<div><a href=\"http://" IPSTR_FORMAT ".local/lamp/on\" class=\"LAMPBUTTON %s\">Lamp ON</a></div>"
+            "<div><a href=\"http://" IPSTR_FORMAT ".local/lamp/off\" class=\"LAMPBUTTON %s\">Lamp OFF</a></div>"
         "</div>"
         "<div><p>Currently: %s</p></div>"
     "</body>"
@@ -118,19 +121,8 @@ static esp_err_t lamp_get_response(httpd_req_t *req)
     esp_err_t err = ESP_OK;
     lamp_user_ctx_t* lamp_ctx = (lamp_user_ctx_t*)(req->user_ctx);
 
-    tcpip_adapter_ip_info_t ip_info;
-    err = tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip_info);
-    if (ESP_OK != err)
-    {
-        ESP_LOGE(TAG, "tcpip_adapter_get_ip_info failed");
-        return err;
-    }
-
-    static char ipaddress[IP4ADDR_STRLEN_MAX];
-    ip4addr_ntoa_r(&(ip_info.ip), ipaddress, IP4ADDR_STRLEN_MAX);
-
-    ESP_LOGI(TAG, "lamp_get_response IP:" IPSTR_FORMAT " on=%u off=%u %s last=%d elapsed=%d", 
-        ipaddress,
+    ESP_LOGI(TAG, "lamp_get_response DNS:" IPSTR_FORMAT ".local on=%u off=%u %s last=%d elapsed=%d", 
+        BUTTON_MDNS_HOSTNAME,
         lamp_ctx->on_count, 
         lamp_ctx->off_count, 
         (lamp_ctx->currently_on ? "ON" : "OFF"),
@@ -140,9 +132,9 @@ static esp_err_t lamp_get_response(httpd_req_t *req)
 
     char* resp_str = NULL;
     int ret = asprintf(&resp_str, HELLO_BACK_AT_YA,
-        ipaddress,
+        BUTTON_MDNS_HOSTNAME,
         (lamp_ctx->currently_on ? "ON_GREEN" : "OFF_GREEN"),
-        ipaddress,
+        BUTTON_MDNS_HOSTNAME,
         (lamp_ctx->currently_on ? "ON_RED" : "OFF_RED"),
         (lamp_ctx->currently_on ? "ON" : "OFF")
     );

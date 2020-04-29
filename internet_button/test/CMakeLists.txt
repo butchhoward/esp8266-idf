@@ -62,7 +62,6 @@ include_directories(${PROJECT_SOURCE_DIR}/build-test/config)
 include_directories(${PROJECT_SOURCE_DIR}/build-test/include)
 
 # Directories needed for this project
-include_directories(${PROJECT_SOURCE_DIR}/main)
 include_directories(${PROJECT_SOURCE_DIR}/components/include)
 
 # FILE GLOBing: a unix concept where all files matching a wildcard
@@ -78,7 +77,6 @@ FILE(GLOB MOCK_SRC ${MOCK_DIR}/*.c)
 
 # A list of all src files in the System Under Test
 FILE(GLOB SUT_SRC 
-    ../main/*.c
     ../components/*.c
 )
 

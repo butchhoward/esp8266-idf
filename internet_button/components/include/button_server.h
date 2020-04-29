@@ -1,5 +1,5 @@
-#ifndef BETTON_SERVER_H
-#define BETTON_SERVER_H
+#ifndef BUTTON_SERVER_H
+#define BUTTON_SERVER_H
 
 void start_the_server();
 
