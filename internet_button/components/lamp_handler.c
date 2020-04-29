@@ -21,68 +21,6 @@
 
 static const char *TAG="lamp_handler";
 
-#define IPSTR_FORMAT "%s"
-
-static const char* HELLO_BACK_AT_YA=
-"<!DOCTYPE html>"
-"<html>"
-    "<head>"
-        "<title>Knitting Lamp</title>"
-        "<style>"
-            "html, body {"
-                "margin: 0;"
-                "padding: 0;"
-                "height: 100%%;"
-            "}"
-            "body {"
-                "display: flex; /* or css grid for more intricate layouts */"
-                "flex-direction: column;"
-                "text-align: center;"
-            "}"
-            "#pagewrap {"
-                "background-color: black;"
-                "flex-grow: 1;"
-                "overflow-y: scroll;"
-                "display: inline-block;"
-            "}"
-            ".LAMPBUTTON {"
-                "background-color: LightGreen;"
-                "border: 2px solid black;"
-                "color: black;"
-                "padding: 5px 10px;"
-                "text-align: center;"
-                "display: inline-block;"
-                "font-size: 20px; "
-                "margin: 10px 30px; "
-                "cursor: pointer; "
-                "text-decoration:none;"
-                "width:80vw;"
-                "height:40vh;"
-            "}"
-            ".OFF_RED {"
-                "background-color: LightCoral;"
-            "}"
-            ".ON_RED {"
-                "background-color: red;"
-            "}"
-            ".OFF_GREEN {"
-                "background-color: green;"
-            "}"
-            ".ON_GREEN {"
-                "background-color: LightGreen;"
-            "}"
-        "</style>"
-    "</head>"
-    "<body>"
-        "<h1>Knitting Lamp</h1>"
-        "<div id=pagewrap>"
-            "<div><a href=\"http://" IPSTR_FORMAT ".local/lamp/on\" class=\"LAMPBUTTON %s\">Lamp ON</a></div>"
-            "<div><a href=\"http://" IPSTR_FORMAT ".local/lamp/off\" class=\"LAMPBUTTON %s\">Lamp OFF</a></div>"
-        "</div>"
-        "<div><p>Currently: %s</p></div>"
-    "</body>"
-"</html>";
-
 #define RELAY_GPIO GPIO_NUM_12
 
 static void configure_the_gpio_to_use()
@@ -101,24 +39,12 @@ static void configure_the_gpio_to_use()
     }
 }
 
-
-typedef struct lamp_user_ctx_t 
-{
-    void* relay_config;
-    unsigned int on_count;
-    unsigned int off_count;
-    int64_t time_last_change;
-    int64_t elapsed;
-    bool currently_on;
-} lamp_user_ctx_t;
-
-
 static esp_err_t lamp_get_response(httpd_req_t *req)
 {
     esp_err_t err = ESP_OK;
     lamp_user_ctx_t* lamp_ctx = (lamp_user_ctx_t*)(req->user_ctx);
 
-    ESP_LOGI(TAG, "lamp_get_response DNS:" IPSTR_FORMAT ".local on=%u off=%u %s last=%d elapsed=%d", 
+    ESP_LOGI(TAG, "lamp_get_response DNS: %s.local on=%u off=%u %s last=%d elapsed=%d", 
         CONFIG_BUTTON_MDNS_HOSTNAME,
         lamp_ctx->on_count, 
         lamp_ctx->off_count, 
@@ -127,16 +53,8 @@ static esp_err_t lamp_get_response(httpd_req_t *req)
         (int32_t)(lamp_ctx->elapsed/1000000LL)
     );
 
-    char* resp_str = NULL;
-    int ret = asprintf(&resp_str, HELLO_BACK_AT_YA,
-        CONFIG_BUTTON_MDNS_HOSTNAME,
-        (lamp_ctx->currently_on ? "ON_GREEN" : "OFF_GREEN"),
-        CONFIG_BUTTON_MDNS_HOSTNAME,
-        (lamp_ctx->currently_on ? "ON_RED" : "OFF_RED"),
-        (lamp_ctx->currently_on ? "ON" : "OFF")
-    );
-
-    if (ret < 0)
+    char* resp_str = lamp_handler_html_response(lamp_ctx);
+    if (NULL == resp_str)
     {
         err = httpd_resp_send_500(req);
     }
