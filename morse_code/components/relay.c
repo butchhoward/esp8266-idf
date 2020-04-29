@@ -17,7 +17,7 @@ void* relay_setup_mode(gpio_num_t io_pin, RELAY_MODE mode)
 
 void relay_cleanup(void* config)
 {
-
+    free(config);
 }
 
 extern void (*relay_on)(void* config);
