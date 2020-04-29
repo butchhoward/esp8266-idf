@@ -2,11 +2,10 @@
 #include "button_server_connect.h"
 #include "lamp_handler.h"
 #include "internal/indirections_mdns.h"
+#include "sdkconfig.h"
 #include <sys/param.h>
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
 #include <esp_err.h>
 #include "esp_system.h"
 #include "esp_log.h"
@@ -14,14 +13,10 @@
 #include "esp_event.h"
 #include "nvs.h"
 #include "nvs_flash.h"
-
 #include <esp_http_server.h>
 #include <mdns.h>
 
 static const char *TAG = "button_server";
-
-
-
 
 httpd_handle_t start_webserver(void)
 {
@@ -71,14 +66,11 @@ static void connect_handler(void* arg, esp_event_base_t event_base,
 }
 
 
-const char* BUTTON_MDNS_HOSTNAME = "lamp2";
-const char* BUTTON_MDNS_INSTANCE = "the other lamp";
-
 static void initialise_mdns(void)
 {
     ESP_ERROR_CHECK_WITHOUT_ABORT( mdns_init_impl() );
-    ESP_ERROR_CHECK_WITHOUT_ABORT( mdns_hostname_set_impl(BUTTON_MDNS_HOSTNAME) );
-    ESP_ERROR_CHECK_WITHOUT_ABORT( mdns_instance_name_set_impl(BUTTON_MDNS_INSTANCE) );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( mdns_hostname_set_impl(CONFIG_BUTTON_MDNS_HOSTNAME) );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( mdns_instance_name_set_impl(CONFIG_BUTTON_MDNS_INSTANCE) );
     ESP_ERROR_CHECK_WITHOUT_ABORT( mdns_service_add_impl(NULL, "_http", "_tcp", 80, NULL, 0) );
 }
 

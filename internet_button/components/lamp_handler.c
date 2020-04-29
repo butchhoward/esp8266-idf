@@ -23,9 +23,6 @@ static const char *TAG="lamp_handler";
 
 #define IPSTR_FORMAT "%s"
 
-//blarg, but blarg we will live with for now.
-extern const char* BUTTON_MDNS_HOSTNAME;
-
 static const char* HELLO_BACK_AT_YA=
 "<!DOCTYPE html>"
 "<html>"
@@ -122,7 +119,7 @@ static esp_err_t lamp_get_response(httpd_req_t *req)
     lamp_user_ctx_t* lamp_ctx = (lamp_user_ctx_t*)(req->user_ctx);
 
     ESP_LOGI(TAG, "lamp_get_response DNS:" IPSTR_FORMAT ".local on=%u off=%u %s last=%d elapsed=%d", 
-        BUTTON_MDNS_HOSTNAME,
+        CONFIG_BUTTON_MDNS_HOSTNAME,
         lamp_ctx->on_count, 
         lamp_ctx->off_count, 
         (lamp_ctx->currently_on ? "ON" : "OFF"),
@@ -132,9 +129,9 @@ static esp_err_t lamp_get_response(httpd_req_t *req)
 
     char* resp_str = NULL;
     int ret = asprintf(&resp_str, HELLO_BACK_AT_YA,
-        BUTTON_MDNS_HOSTNAME,
+        CONFIG_BUTTON_MDNS_HOSTNAME,
         (lamp_ctx->currently_on ? "ON_GREEN" : "OFF_GREEN"),
-        BUTTON_MDNS_HOSTNAME,
+        CONFIG_BUTTON_MDNS_HOSTNAME,
         (lamp_ctx->currently_on ? "ON_RED" : "OFF_RED"),
         (lamp_ctx->currently_on ? "ON" : "OFF")
     );

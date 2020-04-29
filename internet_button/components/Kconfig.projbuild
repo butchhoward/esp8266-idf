@@ -16,11 +16,12 @@ menu "Button Connection Configuration"
             WiFi password (WPA or WPA2) for the example to use.
             Can be left blank if the network has no security set.
 
-    config BUTTON_CONNECT_IPV6
-        bool "Obtain IPv6 link-local address"
-        default n
-        select LWIP_IPV6
-        help
-            By default, examples will wait until IPv4 and IPv6 addresses are obtained.
-            Disable this option if the network does not support IPv6.
+    config BUTTON_MDNS_HOSTNAME
+        string "mDNS Name to use for device"
+        default "lamp"
+
+    config BUTTON_MDNS_INSTANCE
+        string "mDNS Description to use for the device"
+        default "the office lamp"
+
 endmenu
