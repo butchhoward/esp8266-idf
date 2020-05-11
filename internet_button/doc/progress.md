@@ -40,3 +40,6 @@ OScope connections for reading Relay signal and one of the on-board LEDs
 [<img alt="stack_breadboard_oscope_cconnections" src="./stack_breadboard_oscope_cconnections.png" width="300" />](stack_breadboard_oscope_cconnections.png)
 
 
+Relay patched onto an extension cord with USB power block. All shoved into a plastic box to hide behind the couch for the lamp.
+
+[<img alt="stack_breadboard_oscope_cconnections" src="./hacked_onto_cord_shoved_in_box.jpg" width="300" />](hacked_onto_cord_shoved_in_box.jpg)
