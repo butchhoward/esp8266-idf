@@ -44,6 +44,6 @@ So it does not look a tangled mess shoved in a bin.
 
 # Footnotes
 
-<b id="f1">1</b> : [↩](#a1)
+[<b id="f1">1</b>](#a1) :
 This is bad, but it allows the light to be controlled with any browser.
 I made an attempt at using POST, but from a browser `<form>` the esp_http_server choked on the headers being sent. POST from `curl` worked fine. ~~I'll sort that out in the next release or so, maybe.~~ Turned out to be the size of the buffers the RTOS code allocates for reading and writing HTTP requests. There is a config setting to make it bigger.
